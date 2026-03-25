@@ -16,3 +16,14 @@ export interface PriceSnapshot {
   assetType: AssetType;
   timestamp: string;
 }
+
+// WebSocket events — shared between frontend and backend
+// frontend knows exactly what events to listen for
+export interface ServerToClientEvents {
+  "prices:updated": (data: MarketPrice[]) => void;
+  connected: (data: { message: string }) => void;
+}
+
+export interface ClientToServerEvents {
+  "subscribe:prices": () => void;
+}
