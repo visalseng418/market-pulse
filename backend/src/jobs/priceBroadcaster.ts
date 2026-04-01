@@ -2,6 +2,7 @@ import cron from 'node-cron';
 import { getIO } from '@config/socket';
 import { getAllPrices } from '@modules/market/market.service';
 import { logger } from '@utils/logger';
+import { checkAndTriggerAlerts } from '@modules/alerts/alert.service';
 
 let isRunning = false;
 const interval = 20; // seconds
@@ -27,14 +28,16 @@ const broadcastPrices = async (): Promise<void> => {
     const io = getIO();
     const connectedClients = io.engine.clientsCount;
 
-    // Only broadcast if someone is connected — no point fetching if nobody is listening
-    if (connectedClients === 0) {
+    if (connectedClients > 0) {
+      io.emit('prices:updated', prices);
+      logger.debug(`Prices broadcast to ${connectedClients} client(s)`);
+    } else {
       logger.debug('No clients connected, skipping broadcast');
-      return;
     }
 
-    io.emit('prices:updated', prices);
-    logger.debug(`Prices broadcast to ${connectedClients} client(s)`);
+    // Check alerts regardless of connected clients
+    // A user might not be online but still wants email notification
+    await checkAndTriggerAlerts(prices);
   } catch (error) {
     logger.error('Price broadcast failed:', error);
   } finally {

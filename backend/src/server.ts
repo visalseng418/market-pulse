@@ -3,6 +3,7 @@ import app from './app';
 import { logger } from '@utils/logger';
 import { connectDB } from '@config/database';
 import { connectRedis } from '@config/redis';
+import { connectEmail } from '@config/email';
 import { initializeSocket } from '@config/socket';
 import http from 'http';
 import { startPriceBroadcaster } from '@jobs/priceBroadcaster';
@@ -13,6 +14,7 @@ const startServer = async (): Promise<void> => {
   try {
     await connectDB();
     await connectRedis();
+    await connectEmail();
 
     // Create HTTP server explicitly
     // Socket.io needs access to the raw HTTP server, not just Express

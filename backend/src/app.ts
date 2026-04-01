@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import authRouter from '@modules/auth/auth.router';
 import marketRouter from '@modules/market/market.router';
+import alertRouter from '@modules/alerts/alert.router';
 import { errorHandler } from '@middlewares/errorHandler';
 
 const app: Application = express();
@@ -34,6 +35,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/market', marketRouter);
+app.use('/api/alerts', alertRouter);
 
 //This must always be last.
 app.use(errorHandler);
