@@ -12,7 +12,8 @@
     "format": "prettier --write src/**/*.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "ts-node -r tsconfig-paths/register database/seeds/price-snapshots.seed.ts"
   },
   "keywords": [],
   "author": "",

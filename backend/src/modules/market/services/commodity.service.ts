@@ -1,13 +1,12 @@
-import axios from 'axios';
 import type { MarketPrice } from '@shared/types/market.types';
 import { logger } from '@utils/logger';
 import { createApiClient } from '@config/axios';
 
-const client = createApiClient(process.env.GOLDAPI_URL!);
+const client = createApiClient(process.env.GOLD_API_URL!);
 
 const COMMODITIES = [
-  { symbol: 'GOLD', name: 'Gold', code: 'XAU' },
-  { symbol: 'SILVER', name: 'Silver', code: 'XAG' },
+  { symbol: 'GOLD',     name: 'Gold',     code: 'XAU' },
+  { symbol: 'SILVER',   name: 'Silver',   code: 'XAG' },
   { symbol: 'PLATINUM', name: 'Platinum', code: 'XPT' },
 ];
 
@@ -16,11 +15,7 @@ export const getCommodityPrices = async (): Promise<MarketPrice[]> => {
 
   for (const commodity of COMMODITIES) {
     try {
-      const { data } = await client.get(`${commodity.code}/USD`, {
-        headers: {
-          'x-access-token': process.env.GOLDAPI_KEY!,
-          'Content-Type': 'application/json',
-        },
+      const { data } = await client.get(`/price/${commodity.code}`, {
         timeout: 10000,
       });
 
@@ -28,7 +23,7 @@ export const getCommodityPrices = async (): Promise<MarketPrice[]> => {
         symbol: commodity.symbol,
         name: commodity.name,
         price: data.price,
-        change24h: data.chp ?? 0, // chp = change percentage
+        change24h: data.chp ?? 0,
         volume24h: null,
         assetType: 'commodity',
         timestamp: new Date().toISOString(),

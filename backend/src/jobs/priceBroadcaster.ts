@@ -3,7 +3,7 @@ import { getIO } from '@config/socket';
 import { getAllPrices } from '@modules/market/market.service';
 import { logger } from '@utils/logger';
 import { checkAndTriggerAlerts } from '@modules/alerts/alert.service';
-
+import { saveSnapshots } from '@modules/market/snapshot.service';
 let isRunning = false;
 const interval = 20; // seconds
 
@@ -24,6 +24,8 @@ const broadcastPrices = async (): Promise<void> => {
       logger.warn('No prices to broadcast');
       return;
     }
+
+    await saveSnapshots(prices);
 
     const io = getIO();
     const connectedClients = io.engine.clientsCount;

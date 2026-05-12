@@ -1,42 +1,39 @@
 import { createApiClient } from '@config/axios';
 import type { MarketPrice } from '@shared/types/market.types';
 
-//Base url
-const client = createApiClient(process.env.EXCHANGERATE_API_URL!);
+const client = createApiClient(process.env.FRANKFURTER_API_URL!);
 
-const FOREX_PAIRS: Record<
-  string,
-  { base: string; quote: string; name: string }
-> = {
-  'EUR-USD': { base: 'EUR', quote: 'USD', name: 'Euro / US Dollar' },
-  'GBP-USD': { base: 'GBP', quote: 'USD', name: 'British Pound / US Dollar' },
-  'USD-JPY': { base: 'USD', quote: 'JPY', name: 'US Dollar / Japanese Yen' },
-  'USD-KHR': { base: 'USD', quote: 'KHR', name: 'US Dollar / Cambodian Riel' },
+// All pairs requested with USD as base — one single API call
+const QUOTES = ['EUR', 'GBP', 'JPY', 'KHR'];
+
+// Maps Frankfurter quote currency → our symbol and how to derive the price.
+// invert=true  → price = 1 / rate  (e.g. USD→EUR rate 0.85 means EUR-USD = 1/0.85 ≈ 1.176)
+// invert=false → price = rate      (e.g. USD→JPY rate 157 means USD-JPY = 157)
+const QUOTE_MAP: Record<string, { symbol: string; name: string; invert: boolean }> = {
+  EUR: { symbol: 'EUR-USD', name: 'Euro / US Dollar',               invert: true  },
+  GBP: { symbol: 'GBP-USD', name: 'British Pound / US Dollar',      invert: true  },
+  JPY: { symbol: 'USD-JPY', name: 'US Dollar / Japanese Yen',       invert: false },
+  KHR: { symbol: 'USD-KHR', name: 'US Dollar / Cambodian Riel',     invert: false },
 };
 
-export const getForexPrices = async (
-  symbols: string[],
-): Promise<MarketPrice[]> => {
-  const results: MarketPrice[] = [];
+export const getForexPrices = async (): Promise<MarketPrice[]> => {
+  const { data } = await client.get('/v2/rates', {
+    params: { base: 'USD', quotes: QUOTES.join(',') },
+  });
 
-  for (const symbol of symbols) {
-    const pair = FOREX_PAIRS[symbol];
-    if (!pair) continue;
+  // Response: [{ date, base: "USD", quote: "EUR", rate: 0.85 }, ...]
+  return (data as { base: string; quote: string; rate: number }[]).map((item) => {
+    const meta  = QUOTE_MAP[item.quote];
+    const price = meta.invert ? 1 / item.rate : item.rate;
 
-    const { data } = await client.get(
-      `/${process.env.EXCHANGERATE_API_KEY}/pair/${pair.base}/${pair.quote}`,
-    );
-
-    results.push({
-      symbol,
-      name: pair.name,
-      price: data.conversion_rate,
-      change24h: 0, // free tier doesn't provide 24h change
+    return {
+      symbol:    meta.symbol,
+      name:      meta.name,
+      price,
+      change24h: 0,
       volume24h: null,
       assetType: 'forex',
       timestamp: new Date().toISOString(),
-    } satisfies MarketPrice);
-  }
-
-  return results;
+    } satisfies MarketPrice;
+  });
 };

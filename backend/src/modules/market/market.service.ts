@@ -28,7 +28,7 @@ export const getAllPrices = async (): Promise<MarketPrice[]> => {
         : getCryptoPrices(DEFAULT_ASSETS.crypto),
       cachedForex
         ? Promise.resolve(cachedForex)
-        : getForexPrices(DEFAULT_ASSETS.forex),
+        : getForexPrices(),
       cachedCommodity ? Promise.resolve(cachedCommodity) : getCommodityPrices(),
     ],
   );

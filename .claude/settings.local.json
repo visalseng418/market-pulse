@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose up *)",
+      "Bash(npm run *)",
+      "Bash(taskkill *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(curl -s \"https://api.gold-api.com/price/XAU/USD/history\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(list\\(d.keys\\(\\)\\) if isinstance\\(d,dict\\) else f'array[{len\\(d\\)}]'\\); \")",
+      "Bash(curl -s -H 'x-access-token: c38922571ed1b71e4e11ac47500445fbf68c690732e7bba8f275f901e68ebde4' https://api.gold-api.com/price/XAU/USD/history)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}
