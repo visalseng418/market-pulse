@@ -15,7 +15,7 @@ export const getCommodityPrices = async (): Promise<MarketPrice[]> => {
 
   for (const commodity of COMMODITIES) {
     try {
-      const { data } = await client.get(`/price/${commodity.code}`, {
+      const { data } = await client.get(`/price/${commodity.code}/USD`, {
         timeout: 10000,
       });
 
