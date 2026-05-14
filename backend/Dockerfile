@@ -16,5 +16,9 @@ COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/backend/node_modules ./node_modules
 COPY backend/package*.json ./
 COPY backend/tsconfig.production.json ./tsconfig.json
+# Required for db:migrate — drizzle-kit needs the config, migrations, and schema
+COPY backend/drizzle.config.ts ./
+COPY backend/database/ ./database/
+COPY backend/src/config/schema.ts ./src/config/schema.ts
 EXPOSE 5000
 CMD ["node", "-r", "tsconfig-paths/register", "dist/backend/src/server.js"]
