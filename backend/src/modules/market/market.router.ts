@@ -4,7 +4,7 @@ import { authenticate } from '@middlewares/authenticate';
 
 const router = Router();
 
-// Protected — only logged in users can see market data
-router.get('/prices', authenticate, marketController.getPrices);
+// Public — live prices are visible to everyone
+router.get('/prices', marketController.getPrices);
 
 export default router;

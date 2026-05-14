@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import { eq } from 'drizzle-orm';
 import { db } from '@config/database';
 import { users } from '@config/schema';
@@ -15,11 +16,9 @@ import { setCache, hasCache, CACHE_KEYS, CACHE_TTL } from '@utils/cache';
 
 const SALT_ROUNDS = 12;
 
-const generateToken = (payload: JwtPayload): string => {
-  const options: SignOptions = {
-    expiresIn: '7d',
-  };
-  return jwt.sign(payload, process.env.JWT_SECRET!, options);
+const generateToken = (payload: Omit<JwtPayload, 'jti'>): string => {
+  const options: SignOptions = { expiresIn: '7d' };
+  return jwt.sign({ ...payload, jti: randomUUID() }, process.env.JWT_SECRET!, options);
 };
 
 export const register = async (body: RegisterBody): Promise<AuthResponse> => {

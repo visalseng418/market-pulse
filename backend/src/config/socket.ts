@@ -20,24 +20,20 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     },
   });
 
-  // Authenticate every WebSocket connection with JWT
+  // Auth is optional — unauthenticated clients get the live feed but no user-specific events
   io.use(async (socket, next) => {
+    const token = socket.handshake.auth.token;
+
+    if (!token) {
+      socket.data.user = null;
+      return next();
+    }
+
     try {
-      const token = socket.handshake.auth.token;
-
-      if (!token) {
-        return next(new Error('No token provided'));
-      }
-
-      // Check if token is blacklisted
       const isBlacklisted = await hasCache(CACHE_KEYS.BLACKLISTED_TOKEN(token));
-      if (isBlacklisted) {
-        return next(new Error('Token has been invalidated'));
-      }
+      if (isBlacklisted) return next(new Error('Token has been invalidated'));
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-
-      // Attach user to socket
       socket.data.user = decoded;
       next();
     } catch {
@@ -46,8 +42,8 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
   });
 
   io.on('connection', async (socket) => {
-    const user = socket.data.user as JwtPayload;
-    logger.info(`WebSocket connected: ${user.email}`);
+    const user = socket.data.user as JwtPayload | null;
+    logger.info(`WebSocket connected: ${user?.email ?? 'guest'}`);
 
     // Send confirmation to client
     socket.emit('connected', {
@@ -59,14 +55,14 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       const prices = await getAllPrices();
       if (prices.length > 0) {
         socket.emit('prices:updated', prices);
-        logger.debug(`Initial prices sent to ${user.email}`);
+        logger.debug(`Initial prices sent to ${user?.email ?? 'guest'}`);
       }
     } catch (error) {
       logger.error('Failed to send initial prices:', error);
     }
 
     socket.on('disconnect', () => {
-      logger.info(`WebSocket disconnected: ${user.email}`);
+      logger.info(`WebSocket disconnected: ${user?.email ?? 'guest'}`);
     });
   });
 

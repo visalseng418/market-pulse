@@ -7,6 +7,12 @@ interface Props {
   flash: 'up' | 'down' | null
 }
 
+const COMMODITY_DISPLAY_SYMBOL: Record<string, string> = {
+  GOLD: 'XAU',
+  SILVER: 'XAG',
+  PLATINUM: 'XPT',
+}
+
 function formatPrice(price: number, assetType: AssetType): string {
   if (assetType === 'forex') {
     if (price >= 100) {
@@ -24,6 +30,9 @@ function formatPrice(price: number, assetType: AssetType): string {
 
 export default function PriceCard({ price, flash }: Props) {
   const isPositive = price.change24h >= 0
+  const displaySymbol = price.assetType === 'commodity'
+    ? (COMMODITY_DISPLAY_SYMBOL[price.symbol] ?? price.symbol)
+    : price.symbol
 
   return (
     <div
@@ -33,7 +42,7 @@ export default function PriceCard({ price, flash }: Props) {
     >
       <div className="flex items-start justify-between mb-3">
         <div className="min-w-0">
-          <p className="font-semibold text-foreground text-sm truncate">{price.symbol}</p>
+          <p className="font-semibold text-foreground text-sm truncate">{displaySymbol}</p>
           <p className="text-xs text-muted-foreground truncate">{price.name}</p>
         </div>
         <span

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import { useSocketStore } from '@/stores/socketStore'
 import Layout from '@/components/Layout'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
@@ -16,6 +17,12 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    const { token } = useAuthStore.getState()
+    const { socket, connect } = useSocketStore.getState()
+    if (!socket) connect(token ?? undefined)
+  }, [])
+
   return (
     <BrowserRouter>
       <Routes>
@@ -24,9 +31,9 @@ export default function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <Layout>
               <Dashboard />
-            </ProtectedRoute>
+            </Layout>
           }
         />
         <Route
@@ -48,9 +55,9 @@ export default function App() {
         <Route
           path="/indicators/:symbol"
           element={
-            <ProtectedRoute>
+            <Layout>
               <Indicators />
-            </ProtectedRoute>
+            </Layout>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

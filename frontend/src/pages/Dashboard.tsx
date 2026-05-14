@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Bookmark } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useMarketStore } from '@/stores/marketStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import type { WatchlistItem } from '@/stores/watchlistStore'
 import { usePriceFlash } from '@/hooks/usePriceFlash'
@@ -22,6 +24,9 @@ export default function Dashboard() {
   const flashMap = usePriceFlash(prices)
   const lastUpdatedText = useLastUpdated(lastUpdated)
 
+  const token = useAuthStore((s) => s.token)
+  const navigate = useNavigate()
+
   const watchlistItems = useWatchlistStore((s) => s.items)
   const watchlistFetched = useWatchlistStore((s) => s.fetched)
   const setWatchlistItems = useWatchlistStore((s) => s.setItems)
@@ -39,13 +44,17 @@ export default function Dashboard() {
   }, [setPrices])
 
   useEffect(() => {
-    if (watchlistFetched) return
+    if (!token || watchlistFetched) return
     api
       .get<{ success: boolean; data: WatchlistItem[] }>('/watchlist')
       .then((res) => setWatchlistItems(res.data.data))
-  }, [watchlistFetched, setWatchlistItems])
+  }, [token, watchlistFetched, setWatchlistItems])
 
   async function handleWatchlistToggle(asset: MarketPrice) {
+    if (!token) {
+      navigate('/login')
+      return
+    }
     if (togglingSymbol) return
     setTogglingSymbol(asset.symbol)
 

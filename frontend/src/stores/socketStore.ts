@@ -9,19 +9,19 @@ type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>
 interface SocketState {
   socket: AppSocket | null
   connected: boolean
-  connect: (token: string) => void
+  connect: (token?: string) => void
   disconnect: () => void
 }
 
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   connected: false,
-  connect: (token) => {
+  connect: (token?) => {
     const existing = get().socket
     if (existing) existing.disconnect()
 
     const socket: AppSocket = io('/', {
-      auth: { token },
+      auth: token ? { token } : {},
       transports: ['websocket'],
     })
 
