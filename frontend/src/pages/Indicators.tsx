@@ -129,9 +129,10 @@ export default function Indicators() {
     return `$${v.toFixed(2)}`
   }
 
-  const tooltipFormatter = (value: number, name: string) => {
+  const tooltipFormatter = (value: unknown, name: unknown): [string, string] => {
     const labels: Record<string, string> = { price: 'Price', sma20: 'SMA 20', sma50: 'SMA 50' }
-    return [formatPrice(value, assetType), labels[name] ?? name]
+    const key = String(name ?? '')
+    return [formatPrice(value as number, assetType), labels[key] ?? key]
   }
 
   return (
@@ -200,9 +201,10 @@ export default function Indicators() {
                 />
                 <Legend
                   wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
-                  formatter={(value) =>
-                    ({ price: 'Price', sma20: 'SMA 20', sma50: 'SMA 50' })[value] ?? value
-                  }
+                  formatter={(value) => {
+                    const map: Record<string, string> = { price: 'Price', sma20: 'SMA 20', sma50: 'SMA 50' }
+                    return map[value as string] ?? value
+                  }}
                 />
                 <Line
                   type="monotone"

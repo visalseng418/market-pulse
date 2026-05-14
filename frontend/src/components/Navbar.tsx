@@ -14,7 +14,6 @@ export default function Navbar() {
   const clearAuth = useAuthStore((s) => s.clearAuth)
   const connected = useSocketStore((s) => s.connected)
   const connect = useSocketStore((s) => s.connect)
-  const disconnect = useSocketStore((s) => s.disconnect)
   const resetWatchlist = useWatchlistStore((s) => s.reset)
   const navigate = useNavigate()
   const location = useLocation()

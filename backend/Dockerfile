@@ -1,16 +1,20 @@
 # Stage 1 — Build
+# Context is the project root so both backend/ and shared/ are available.
+# tsconfig.build.json sets rootDir: ".." so TypeScript sees both trees.
 FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+COPY shared/ ./shared/
+COPY backend/package*.json ./backend/
+RUN cd backend && npm ci
+COPY backend/ ./backend/
+RUN cd backend && npx tsc -p tsconfig.build.json
 
 # Stage 2 — Production
 FROM node:20-alpine AS production
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
+COPY --from=builder /app/backend/dist ./dist
+COPY --from=builder /app/backend/node_modules ./node_modules
+COPY backend/package*.json ./
+COPY backend/tsconfig.production.json ./tsconfig.json
 EXPOSE 5000
-CMD ["node", "dist/server.js"]
+CMD ["node", "-r", "tsconfig-paths/register", "dist/backend/src/server.js"]

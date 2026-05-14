@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@modules/*": ["dist/backend/src/modules/*"],
+      "@middlewares/*": ["dist/backend/src/middlewares/*"],
+      "@utils/*": ["dist/backend/src/utils/*"],
+      "@config/*": ["dist/backend/src/config/*"],
+      "@types/*": ["dist/backend/src/types/*"],
+      "@jobs/*": ["dist/backend/src/jobs/*"]
+    }
+  }
+}
