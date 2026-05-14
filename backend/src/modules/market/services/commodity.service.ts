@@ -3,6 +3,7 @@ import { logger } from '@utils/logger';
 import { createApiClient } from '@config/axios';
 
 const client = createApiClient(process.env.GOLD_API_URL!);
+client.defaults.headers.common['x-access-token'] = process.env.GOLD_API_API_KEY!;
 
 const COMMODITIES = [
   { symbol: 'GOLD',     name: 'Gold',     code: 'XAU' },
