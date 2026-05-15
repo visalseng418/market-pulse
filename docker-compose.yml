@@ -27,6 +27,9 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/market_pulse
       REDIS_URL: redis://redis:6379
       CLIENT_URL: ${CLIENT_URL:-http://localhost}
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     depends_on:
       postgres:
         condition: service_healthy
