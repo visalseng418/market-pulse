@@ -297,7 +297,3 @@ docker compose exec backend npm run db:migrate
 4. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` in `backend/.env`
 
 ---
-
-## License
-
-MIT
