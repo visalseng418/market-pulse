@@ -71,3 +71,35 @@ export const logout = async (
     next(error);
   }
 };
+
+export const googleRedirect = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const url = authService.googleRedirect();
+    res.redirect(url);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleCallback = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { code } = req.query;
+
+    if (!code || typeof code !== 'string') {
+      throw new ValidationError('Missing authorization code');
+    }
+
+    const { token } = await authService.googleCallback(code);
+    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${encodeURIComponent(token)}`);
+  } catch (error) {
+    next(error);
+  }
+};

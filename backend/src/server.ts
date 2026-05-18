@@ -10,7 +10,23 @@ import { startPriceBroadcaster } from '@jobs/priceBroadcaster';
 
 const PORT = process.env.PORT || 5000;
 
+const REQUIRED_ENV_VARS = [
+  'JWT_SECRET',
+  'DATABASE_URL',
+  'REDIS_URL',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GOOGLE_REDIRECT_URI',
+];
+
 const startServer = async (): Promise<void> => {
+  for (const key of REQUIRED_ENV_VARS) {
+    if (!process.env[key]) {
+      logger.error(`Missing required environment variable: ${key}`);
+      process.exit(1);
+    }
+  }
+
   try {
     await connectDB();
     await connectRedis();

@@ -22,7 +22,8 @@ export const alertConditionEnum = pgEnum('alert_condition', ['above', 'below']);
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  passwordHash: varchar('password_hash', { length: 255 }),
+  googleId: varchar('google_id', { length: 255 }).unique(),
   name: varchar('name', { length: 20 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

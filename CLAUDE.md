@@ -27,6 +27,7 @@ Real-time market intelligence dashboard tracking live prices for crypto, forex, 
 - **Path aliases** — always use `@config/*`, `@utils/*`, `@modules/*`, `@middlewares/*`, `@jobs/*`, `@shared/*`. Never relative imports
 - **Cache-first** — every external API call checks Redis first
 - **JWT + Redis blacklist** — stateless auth, blacklisted tokens rejected at HTTP and WebSocket level
+- **Dual auth strategy** — email/password (bcrypt) and Google OAuth2 coexist; `password_hash` is nullable for Google-only users; accounts can be linked if the same email is used for both
 
 ### Real-Time Flow
 
@@ -80,7 +81,7 @@ market-pulse/
 ## Database Schema
 
 ```
-users:          id, email (unique), password_hash, name, created_at, updated_at
+users:          id, email (unique), password_hash (nullable), google_id (nullable, unique), name, created_at, updated_at
 watchlists:     id, user_id→users, asset_symbol, asset_type (enum), created_at
 price_alerts:   id, user_id→users, asset_symbol, asset_type, condition (above/below), target_price, is_triggered, triggered_at, created_at
 alert_history:  id, alert_id→price_alerts, user_id→users, asset_symbol, triggered_price, triggered_at
@@ -96,6 +97,8 @@ POST   /api/auth/register
 POST   /api/auth/login
 POST   /api/auth/logout         (auth)
 GET    /api/auth/me             (auth)
+GET    /api/auth/google          → redirects to Google OAuth consent screen
+GET    /api/auth/google/callback → exchanges code, issues JWT, redirects to /auth/callback?token=
 GET    /api/market/prices       (public)
 GET    /api/alerts              (auth)
 POST   /api/alerts              (auth)
@@ -154,6 +157,9 @@ DELETE /api/watchlist/:id       (auth)
 | MACD signal line approximated     | Full accuracy needs historical MACD series — future improvement |
 | Alerts checked on every broadcast | Simple and reliable — no separate scheduler needed              |
 | Seed script for snapshots         | SMA50 needs 50 snapshots — waiting 17min in dev is impractical  |
+| No Passport.js for OAuth          | Manual flow with axios only — no hidden magic, full control     |
+| `password_hash` nullable          | Google-only users have no password; nullable supports both auth strategies |
+| Auto-link OAuth by email          | If same email exists (email/password + Google), accounts are merged silently |
 
 ---
 
@@ -161,6 +167,7 @@ DELETE /api/watchlist/:id       (auth)
 
 - ✅ Phase 1–9: Setup, DB, Auth, External APIs, Redis, WebSocket, Alerts, Indicators, Watchlist
 - ✅ **Phase 10**: Frontend (React + Vite + TypeScript + Tailwind + Socket.io client)
+- ✅ **Phase 10.5**: Google OAuth2 login (manual, no Passport) — email/password and Google coexist
 - 🔄 **Phase 11**: Self-hosted Docker deployment (in progress)
 
 ### Phase 10 — Frontend Pages (complete)

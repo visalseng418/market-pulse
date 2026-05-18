@@ -9,6 +9,7 @@ import { useSocketStore } from '@/stores/socketStore'
 import { useWatchlistStore } from '@/stores/watchlistStore'
 import api from '@/lib/api'
 import type { AuthResponse } from '@shared/types/auth.types'
+import GoogleIcon from '@/components/ui/GoogleIcon'
 
 function getPasswordStrength(password: string): { label: string; color: string } | null {
   if (!password) return null
@@ -158,6 +159,20 @@ export default function Register() {
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creating account…' : 'Create account'}
+            </Button>
+            <div className="relative w-full flex items-center gap-2">
+              <div className="flex-1 border-t border-border" />
+              <span className="text-xs text-muted-foreground">or</span>
+              <div className="flex-1 border-t border-border" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => { window.location.href = '/api/auth/google' }}
+            >
+              <GoogleIcon />
+              <span className="leading-none">Continue with Google</span>
             </Button>
             <p className="text-sm text-muted-foreground text-center">
               Already have an account?{' '}

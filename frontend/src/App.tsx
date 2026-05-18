@@ -5,6 +5,7 @@ import { useSocketStore } from '@/stores/socketStore'
 import Layout from '@/components/Layout'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
+import OAuthCallback from '@/pages/OAuthCallback'
 import Dashboard from '@/pages/Dashboard'
 import Watchlist from '@/pages/Watchlist'
 import Alerts from '@/pages/Alerts'
@@ -28,6 +29,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/auth/callback" element={<OAuthCallback />} />
         <Route
           path="/"
           element={
